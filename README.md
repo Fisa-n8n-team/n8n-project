@@ -22,7 +22,7 @@
 매일 아침 사용자의 수준에 맞는 적절한 알고리즘 문제를 자동으로 추천받고, 문제를 풀어 GitHub에 Push 하면 별도의 조작 없이 Notion 대시보드의 상태가 업데이트되고 Slack 알림이 전송됩니다. 반복적인 스터디 관리 업무를 **100% 자동화**하여, 사용자가 '문제 풀이'라는 본질적인 학습 활동에만 집중할 수 있는 환경을 구축했습니다.
 
 ### ✅ 핵심 기능 (Key Features)
-* **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 현재 수준(Silver 3~5)에 맞는 문제를 랜덤 추천 및 Slack 발송.
+* **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준(티어)마다 문제를 랜덤 추천 및 Slack 발송.
 * **Interactive Action:** Slack 메시지 내 버튼(수락/거절)을 통해 원클릭으로 Notion 학습 계획표에 문제 등록 (Webhook 활용).
 * **깃허브 커밋 감지 및 알림/Notion 동기화:** `BaekjoonHub`를 통한 GitHub Commit 감지 → Notion 페이지 상태 '완료' 자동 변경 → 풀이 링크 동기화.
 
@@ -118,3 +118,35 @@ Slack에서 노션으로 이어지는 Context Switching을 제거하기 위해, 
 
 
 ## 6. 🚀 트러블 슈팅 (Troubleshooting)
+
+### 🚨 이슈 1 : GitHub Webhook(Commit Push) 이벤트 수신 불가
+
+#### 1. 문제 상황 (Problem)
+로컬 환경(Docker)에서 n8n을 실행하고, GitHub 리포지토리에 코드가 푸시(Push)될 때마다 자동으로 워크플로우가 실행되도록 `GitHub Trigger` 노드를 설정했습니다.
+하지만 실제 로컬에서 `git push`를 수행해도 **n8n에서 아무런 반응이 없었으며**, GitHub 리포지토리의 Webhook 설정 페이지에서는 `Delivery Error (Connection refused)`가 발생했습니다.
+
+* **설정 시도:** Webhook Payload URL에 `http://localhost:5678/webhook/...`을 입력했으나 GitHub가 접근하지 못함
+
+#### 2. 원인 분석 (Cause)
+* **네트워크 격리:** GitHub 서버는 공용 인터넷(Public Network)에 위치해 있지만, 내 n8n 서버는 내 컴퓨터의 사설망(Private Network, `localhost`) 내부에 갇혀 있습니다.
+* **접근 불가:** 외부 서비스인 GitHub 입장에서는 내 컴퓨터의 IP 주소를 알 수도 없고, 방화벽 등에 막혀 직접 접근(Inbound Request)할 수 없습니다. 즉, `localhost`라는 주소는 GitHub 서버 입장에서 유효하지 않은 주소입니다.
+
+#### 3. 해결 방법: ngrok을 이용한 터널링 (Solution)
+로컬 포트를 외부 인터넷에 안전하게 노출시켜주는 터널링 도구 **ngrok**을 도입하여, GitHub가 내 로컬 서버로 데이터를 보낼 수 있는 공용 터널을 생성했습니다.
+
+- **1) ngrok 설치 및 실행**
+n8n이 실행 중인 로컬 포트(5678)를 외부와 연결합니다.
+
+    ```bash
+    ngrok http 5678
+    ```
+
+- **2) 퍼블릭 URL 확보**
+ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
+
+- **3) GitHub Webhook 설정 업데이트**
+    - Payload URL을 기존 localhost 주소에서 ngrok이 발급해 준 주소로 변경
+
+#### 4. 결과
+- git push 발생 시, GitHub가 ngrok 터널을 통해 로컬 n8n으로 Webhook 이벤트(JSON Payload)를 정상적으로 전송
+- n8n의 GitHub Trigger 노드가 즉시 반응하여, 이후 연결된 자동화 로직(Slack 알림, Notion Update)이 성공적으로 수행
