@@ -21,14 +21,23 @@
 
 매일 아침 사용자의 수준에 맞는 적절한 알고리즘 문제를 자동으로 추천받고, 문제를 풀어 GitHub에 Push 하면 별도의 조작 없이 Notion 대시보드의 상태가 업데이트되고 Slack 알림이 전송됩니다. 반복적인 스터디 관리 업무를 **100% 자동화**하여, 사용자가 '문제 풀이'라는 본질적인 학습 활동에만 집중할 수 있는 환경을 구축했습니다.
 
-### ✅ 핵심 기능
-* **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준에 맞는 문제를 랜덤 추천 및 Slack 발송.
+### ✅ 핵심 기능 (Key Features)
+
+<p align="center">
+  <img src="asset/visual selection_stack_2.png" width="500">
+</p>
+
+* **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준(티어)마다 문제를 랜덤 추천 및 Slack 발송.
 * **Interactive Action:** Slack 메시지 내 버튼(수락/거절)을 통해 원클릭으로 Notion 학습 계획표에 문제 등록 (Webhook 활용).
 * **깃허브 커밋 감지 및 알림/Notion 동기화:** `BaekjoonHub`를 통한 GitHub Commit 감지 → Notion 페이지 상태 '완료' 자동 변경 → 풀이 링크 동기화.
 
 ---
 ## 2. 💡 기획 배경
 취업 준비 과정에서 꾸준한 알고리즘 학습을 위해 스터디를 진행했으나, 학습 외적인 부분에서 비효율이 발생함을 느꼈습니다.
+
+<p align="center">
+  <img src="asset/visual selection_background_2.png" width="500">
+</p>
 
 1.  **의사결정 비용 (Decision Fatigue):** 매일 수많은 문제 중 어떤 것을 풀지 고민하는 데 불필요한 시간이 소요됨.
 2.  **관리의 번거로움 (Admin Overhead):** 문제를 풀 때마다 Notion에 접속해 제목, 링크, 난이도를 기록하고 체크박스를 갱신하는 과정이 번거로워 기록을 누락하게 됨.
