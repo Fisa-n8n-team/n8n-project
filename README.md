@@ -21,7 +21,7 @@
 
 매일 아침 사용자의 수준에 맞는 적절한 알고리즘 문제를 자동으로 추천받고, 문제를 풀어 GitHub에 Push 하면 별도의 조작 없이 Notion 대시보드의 상태가 업데이트되고 Slack 알림이 전송됩니다. 반복적인 스터디 관리 업무를 **100% 자동화**하여, 사용자가 '문제 풀이'라는 본질적인 학습 활동에만 집중할 수 있는 환경을 구축했습니다.
 
-### ✅ 핵심 기능
+### ✨ 주요 기능
 * **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준에 맞는 문제를 랜덤 추천 및 Slack 발송.
 * **Interactive Action:** Slack 메시지 내 버튼(수락/거절)을 통해 원클릭으로 Notion 학습 계획표에 문제 등록 (Webhook 활용).
 * **깃허브 커밋 감지 및 알림/Notion 동기화:** `BaekjoonHub`를 통한 GitHub Commit 감지 → Notion 페이지 상태 '완료' 자동 변경 → 풀이 링크 동기화.
@@ -99,41 +99,85 @@ sequenceDiagram
 
 <br>
 
-## 5. 🔄 워크플로우
+## 5. ⚙️ 워크플로우
 <img src="./asset/n8n_all.png" alt="n8n 워크플로우" width="600" />
+<br>
 
-### 1️⃣ 맞춤형 문제 추천 & 알림
-<img src="./asset/n8n_send.png" alt="n8n 워크플로우" width="600" />
+### 1️⃣ 📅 Solved.ac API 기반 문제 추출 파이프라인
+<img src="./asset/n8n_send.png" alt="n8n 워크플로우" width="650" />
 
-### 2️⃣ 문제 수락 & Notion 자동화
-<img src="./asset/n8n_notion.png" alt="n8n 워크플로우" width="600" />
+`Schedule Trigger` → `HTTP Request` → `Code` → `Slack` 정해진 스케줄에 맞춰 외부 API로부터 알고리즘 데이터를 수집하고 가공하여 메신저로 전송하는 워크플로우입니다.
 
-### 3️⃣ 풀이 검증 및 동기화
-<img src="./asset/n8n_solved.png" alt="n8n 워크플로우" width="600" />
+- **Schedule Trigger**: Cron 표현식을 사용하여 매일 오전 09:00에 워크플로우를 시작합니다.
 
-<br><br>
+- **HTTP Request**: Solved.ac API에 GET 요청을 보내 특정 난이도(Gold 1 ~ )의 문제 데이터를 받아옵니다.
 
-## 6. ✨ 주요 기능 상세
+- **Code (JavaScript)**: 응답받은 JSON 데이터에서 무작위로 문제를 선별하고, Slack Block Kit 형식에 맞게 메시지 페이로드를 동적으로 생성합니다.
 
-### 1️⃣ 🎲 맞춤형 문제 추천 & 알림 (Daily Smart Recommendation)
+- **Loop Over Items**: 다수의 문제가 추출될 경우를 대비해 데이터를 순회하며 개별 메시지 객체를 생성합니다.
+
+- **Slack (Send Message)**: 최종 가공된 메시지를 Slack 채널로 전송하여 사용자에게 알림을 보냅니다.
+<br>
+
+### 2️⃣ ⚡ Slack 인터랙티브 웹훅 처리
+<img src="./asset/n8n_notion.png" alt="n8n 워크플로우" width="700" />
+
+`Webhook` → `If (Switch)` → `Notion Create` Slack 버튼 클릭 시 발생하는 이벤트를 수신하여 Notion 데이터베이스를 제어하는 로직입니다.
+
+- **Webhook (POST)**: Slack에서 발생하는 인터랙션 이벤트(버튼 클릭)를 수신하는 엔드포인트입니다.
+
+- **If (Condition)**: 수신된 Payload의 Action ID를 분석하여 사용자가 '수락'을 눌렀는지 '거절'을 눌렀는지 분기 처리합니다.
+
+- **Edit Fields**: Notion API가 요구하는 포맷에 맞춰 데이터 필드(제목, URL, 태그 등)를 매핑합니다.
+
+- **Notion (Create Page)**: 사용자가 문제를 수락한 경우, 해당 문제 정보를 Notion Database에 새로운 페이지로 자동 생성합니다.
+<br>
+
+### 3️⃣ 🐙 다중 리포지토리 커밋 감지 및 DB 동기화
+<img src="./asset/n8n_solved.png" alt="n8n 워크플로우" width="700" />
+
+`GitHub Trigger (Multi)` → `Filter` → `Notion Update` 여러 GitHub 리포지토리의 Push 이벤트를 감지하여, 문제 풀이 여부를 Notion에 자동으로 반영합니다.
+
+- **GitHub Trigger**: 스터디원들의 리포지토리를 동시에 리스닝하며 Push 이벤트를 감지합니다.
+
+- **If (Validation)**: 커밋 메시지를 분석하여 BaekjoonHub와 같은 특정 키워드가 포함된 유효한 풀이 제출인지 검증합니다.
+
+- **Notion (Search & Get)**: 커밋된 문제 제목을 Key로 사용하여 Notion 데이터베이스를 검색하고, 기존에 등록된 문제 페이지의 ID를 조회합니다.
+
+- **Notion (Update Page)**: 검색된 페이지의 상태 속성을 '진행 중'에서 '완료'로 변경하고, 커밋 링크를 업데이트하여 풀이 이력을 동기화합니다.
+
+<br>
+
+## 6. ⚡ 실행
+
+### 1️⃣ 🎲 맞춤형 문제 추천 & 알림
 매일 아침, 사용자의 학습 단계에 맞는 문제를 자동으로 선별하여 제공합니다.
-* **API Integration:** `Solved.ac` API를 호출하여 `Tier: ~ 
-Gold 1` 난이도의 문제를 무작위로 추출합니다.
-* **Scheduling:** n8n의 `Cron/Schedule` 노드를 통해 매일 09:00에 트리거됩니다.
-* **User Experience:** 단순 텍스트가 아닌 Slack Block Kit을 활용하여 문제 제목, 난이도, 링크를 시각적으로 구조화해 전송합니다.
 
-### 2️⃣ 🖱️ 인터랙티브 학습 관리 (Interactive Study Management)
-Slack에서 노션으로 이어지는 Context Switching을 제거하기 위해, 메신저 내에서 데이터베이스 조작이 가능하도록 구현했습니다.
-* **Interactive Buttons:** 추천 메시지에 '✅ 수락', '❌ 거절' 버튼을 부착하여 사용자 행동을 유도합니다.
-* **Webhook Event Handling:** 버튼 클릭 시 발생하는 `POST` 요청을 n8n Webhook이 수신합니다.
-* **Data Routing:** `Switch` 노드를 통해 Action ID(`action_approve`)를 판별하고, 수락 시 Notion API를 호출하여 '진행할 알고리즘 문제' 페이지를 자동 생성합니다.
+<img src="./asset/slack_send.png" alt="slack_send" width="400" />
+<br>
 
-### 3️⃣ 🔄 풀이 검증 및 동기화 (Automated Verification & Sync)
-문제 풀이 후 별도의 기록 과정 없이, 코드 제출만으로 학습 상태를 동기화합니다.
-* **Pattern Matching:** GitHub Push 이벤트 중 커밋 메시지에 `BaekjoonHub` 키워드가 포함된 경우에만 워크플로우가 실행됩니다.
-* **Data Parsing:** 커밋 메시지 문자열을 분석(Split/Regex)하여 `문제 제목`, `난이도`, `풀이 자(Author)` 정보를 추출합니다.
-* **DB Update:** 추출된 제목을 기반으로 Notion 데이터베이스를 검색(Query)하고, 일치하는 페이지의 상태를 <b>'진행 중' → '완료'</b>로 변경하며 커밋 URL을 자동으로 기입합니다.
+### 2️⃣ 🖱️ 인터랙티브 학습 관리
+1. 추천 메시지의 '✅ 수락' 버튼을 클릭하면, `POST` 요청을 n8n `Webhook`이 수신합니다. 
 
+<img src="./asset/slack_accept.png" alt="slack_accept" width="400" />
+
+2. 이후, Notion API를 호출하여 진행할 알고리즘 문제 페이지를 자동 생성합니다.
+
+<img src="./asset/notion_add.png" alt="notion_add" width="500" />
+<br>
+
+### 3️⃣ 🔄 풀이 검증 및 동기화
+1. 수락한 추천 문제를 풀고 제출합니다.
+
+ <img src="./asset/baeckjoon_solved.png" alt="baeckjoon_solved" width="500" />
+
+2. 백준 허브를 통해 GitHub Push 이벤트가 실행되면, `Github Trigger`가 이를 받아 커밋 메시지를 분석합니다.
+
+ <img src="./asset/git_commit.png" alt="git_commit" width="500" />
+
+3. 커밋 메시지 문자열을 분석하여 `문제 제목`, `Author` 정보를 추출합니다. 추출된 제목을 기반으로 Notion 데이터베이스를 검색하고, 일치하는 페이지의 상태를 <b>'진행 중' → '완료'</b>로 변경하며 커밋 URL을 자동으로 기입합니다.
+
+ <img src="./asset/notion_mov.png" alt="notion_mov" width="500" />
 <br><br>
 
 
