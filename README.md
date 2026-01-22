@@ -1,7 +1,9 @@
 # 🤖 n8n 기반 알고리즘 스터디 자동화 (Algorithm Study Automation)
 
 > **"문제 추천부터 풀이 인증, 대시보드 동기화까지 — 사람의 개입을 최소화한 자동화 워크플로우"**
-
+<p align="center">
+  <img src="asset/Gemini_Generated_Image_1.png" width="700">
+</p>
 <br/>
 
 ---
