@@ -24,7 +24,7 @@
 ### ✅ 핵심 기능 (Key Features)
 
 <p align="center">
-  <img src="asset/visual selection_stack.png" width="500">
+  <img src="asset/visual selection_stack_2.png" width="500">
 </p>
 
 * **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준(티어)마다 문제를 랜덤 추천 및 Slack 발송.
@@ -36,7 +36,7 @@
 취업 준비 과정에서 꾸준한 알고리즘 학습(PS)을 위해 스터디를 진행했으나, 학습 외적인 부분에서 비효율이 발생함을 느꼈습니다.
 
 <p align="center">
-  <img src="asset/visual selection_background.png" width="500">
+  <img src="asset/visual selection_background_2.png" width="500">
 </p>
 
 1.  **의사결정 비용 (Decision Fatigue):** 매일 수많은 문제 중 어떤 것을 풀지 고민하는 데 불필요한 시간이 소요됨.
