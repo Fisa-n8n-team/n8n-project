@@ -228,6 +228,8 @@ ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
 
 - **4) Slack API 설정 업데이트**
     - Interactivity의 Request URL을 Webhook의 `Production URL` 주소로 변경
+      
+    <img src="./asset/slack_bot_url.png" alt="slack_bot_url" width="400" />
 
 #### 4. 결과
 - git push 발생 시, GitHub가 ngrok 터널을 통해 로컬 n8n으로 Webhook 이벤트(JSON Payload)를 정상적으로 전송
@@ -238,6 +240,8 @@ ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
 
 #### 1. 문제 상황
  추천 문제가 한국어로 되어 있지 않아서 문제 자체를 이해할 수 없거나, 푼 사람이 극히 적어 학습 자료(레퍼런스)가 부족한 비주류 문제가 선정되는 경우가 발생했습니다.
+ 
+<img src="./asset/baeckjoon_wrong.png" alt="baeckjoon_wrong" width="500" />
 
 #### 2. 원인 분석
 - 단순 난이도 필터링의 한계: 초기 로직은 Tier (난이도) 조건만 설정하여 API를 호출했습니다.
