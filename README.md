@@ -196,13 +196,18 @@ sequenceDiagram
 
 ### 🚨 이슈 1 : GitHub Webhook(Commit Push) 이벤트 수신 불가
 
-#### 1. 문제 상황 (Problem)
+#### 1. 문제 상황
 로컬 환경(Docker)에서 n8n을 실행하고, GitHub 리포지토리에 코드가 푸시(Push)될 때마다 자동으로 워크플로우가 실행되도록 `GitHub Trigger` 노드를 설정했습니다.
-하지만 실제 로컬에서 `git push`를 수행해도 **n8n에서 아무런 반응이 없었으며**, GitHub 리포지토리의 Webhook 설정 페이지에서는 `Delivery Error (Connection refused)`가 발생했습니다.
+하지만 실제 로컬에서 `git push`를 수행해도 **n8n에서 아무런 반응이 없었으며**, Workflow를 실행하면 `Error`가 발생했습니다.
 
+```
+Problem running workflow
+
+The Webhook can not work on "localhost". Please, either setup n8n on a custom domain or start with "--tunnel"!
+```
 * **설정 시도:** Webhook Payload URL에 `http://localhost:5678/webhook/...`을 입력했으나 GitHub가 접근하지 못함
 
-#### 2. 원인 분석 (Cause)
+#### 2. 원인 분석
 * **네트워크 격리:** GitHub 서버는 공용 인터넷(Public Network)에 위치해 있지만, 내 n8n 서버는 내 컴퓨터의 사설망(Private Network, `localhost`) 내부에 갇혀 있습니다.
 * **접근 불가:** 외부 서비스인 GitHub 입장에서는 내 컴퓨터의 IP 주소를 알 수도 없고, 방화벽 등에 막혀 직접 접근(Inbound Request)할 수 없습니다. 즉, `localhost`라는 주소는 GitHub 서버 입장에서 유효하지 않은 주소입니다.
 
@@ -223,6 +228,33 @@ ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
 - **3) GitHub Webhook 설정 업데이트**
     - Payload URL을 기존 localhost 주소에서 ngrok이 발급해 준 주소로 변경
 
+- **4) Slack API 설정 업데이트**
+    - Interactivity의 Request URL을 Webhook의 `Production URL` 주소로 변경
+      
+    <img src="./asset/slack_bot_url.png" alt="slack_bot_url" width="400" />
+
 #### 4. 결과
 - git push 발생 시, GitHub가 ngrok 터널을 통해 로컬 n8n으로 Webhook 이벤트(JSON Payload)를 정상적으로 전송
 - n8n의 GitHub Trigger 노드가 즉시 반응하여, 이후 연결된 자동화 로직(Slack 알림, Notion Update)이 성공적으로 수행
+
+
+### 🚨 이슈 2 : 추천 문제 품질 및 언어 장벽 
+
+#### 1. 문제 상황
+ 추천 문제가 한국어로 되어 있지 않아서 문제 자체를 이해할 수 없거나, 푼 사람이 극히 적어 학습 자료(레퍼런스)가 부족한 비주류 문제가 선정되는 경우가 발생했습니다.
+ 
+<img src="./asset/baeckjoon_wrong.png" alt="baeckjoon_wrong" width="500" />
+
+#### 2. 원인 분석
+- 단순 난이도 필터링의 한계: 초기 로직은 Tier (난이도) 조건만 설정하여 API를 호출했습니다.
+
+- 다국어 데이터: Solved.ac는 전 세계의 다양한 알고리즘 대회 문제를 수집하므로, 별도의 필터링이 없으면 한국어 번역이 제공되지 않는 외국어 문제가 무작위로 추출될 수 있습니다.
+
+#### 3. 해결 방법: 검색 쿼리(Query) 고도화
+```
+Value: tier:{{ $json.tierQuery }} solvable:true lang:ko
+```
+
+- **1) 언어 설정 (lang:ko):** 문제 지문이 한국어로 제공되는 문제만 필터링하여 가독성을 확보했습니다.
+
+- **2) 풀이 수 조건 추가 (s#10000..):** 최소 10,000명 이상이 해결한 문제만 추출하도록 조건을 걸어, 대중적이고 검증된 문제 위주로 추천되도록 로직을 개선했습니다.
