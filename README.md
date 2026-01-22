@@ -16,31 +16,36 @@
 <br/>
 
 
-## 1. 🎯 프로젝트 소개 (Introduction)
+## 1. 🎯 프로젝트 소개
 이 프로젝트는 **n8n**을 활용한 **이벤트 기반(Event-Driven) 알고리즘 스터디 관리 시스템**입니다.
 
 매일 아침 사용자의 수준에 맞는 적절한 알고리즘 문제를 자동으로 추천받고, 문제를 풀어 GitHub에 Push 하면 별도의 조작 없이 Notion 대시보드의 상태가 업데이트되고 Slack 알림이 전송됩니다. 반복적인 스터디 관리 업무를 **100% 자동화**하여, 사용자가 '문제 풀이'라는 본질적인 학습 활동에만 집중할 수 있는 환경을 구축했습니다.
 
-### ✅ 핵심 기능 (Key Features)
-* **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준(티어)마다 문제를 랜덤 추천 및 Slack 발송.
+### ✅ 핵심 기능
+* **오늘의 추천 문제 발송:** 매일 오전 9시, `Solved.ac` API를 통해 수준에 맞는 문제를 랜덤 추천 및 Slack 발송.
 * **Interactive Action:** Slack 메시지 내 버튼(수락/거절)을 통해 원클릭으로 Notion 학습 계획표에 문제 등록 (Webhook 활용).
 * **깃허브 커밋 감지 및 알림/Notion 동기화:** `BaekjoonHub`를 통한 GitHub Commit 감지 → Notion 페이지 상태 '완료' 자동 변경 → 풀이 링크 동기화.
 
 ---
-## 2. 💡 기획 배경 (Motivation)
-취업 준비 과정에서 꾸준한 알고리즘 학습(PS)을 위해 스터디를 진행했으나, 학습 외적인 부분에서 비효율이 발생함을 느꼈습니다.
+## 2. 💡 기획 배경
+취업 준비 과정에서 꾸준한 알고리즘 학습을 위해 스터디를 진행했으나, 학습 외적인 부분에서 비효율이 발생함을 느꼈습니다.
 
 1.  **의사결정 비용 (Decision Fatigue):** 매일 수많은 문제 중 어떤 것을 풀지 고민하는 데 불필요한 시간이 소요됨.
 2.  **관리의 번거로움 (Admin Overhead):** 문제를 풀 때마다 Notion에 접속해 제목, 링크, 난이도를 기록하고 체크박스를 갱신하는 과정이 번거로워 기록을 누락하게 됨.
 3.  **지속성 저하 (Consistency):** 강제성이 부족하고 피드백 루프가 느려 작심삼일로 끝나는 경우가 많음.
 
-이러한 문제를 해결하기 위해 **"홈 서버 Docker 환경에서 구동되는 n8n을 이용해, 이기종 애플리케이션(GitHub, Notion, Slack)이 유기적으로 데이터를 주고받는 자동화 파이프라인"**을 설계하게 되었습니다. 이를 통해 단순 반복 업무를 제거하고, 데이터 기반으로 학습 현황을 투명하게 관리하고자 했습니다.
+이러한 문제를 해결하기 위해 <b>"홈 서버 Docker 환경에서 구동되는 n8n을 이용해, 이기종 애플리케이션(GitHub, Notion, Slack)이 유기적으로 데이터를 주고받는 자동화 파이프라인"</b>을 설계하게 되었습니다. 이를 통해 단순 반복 업무를 제거하고, 데이터 기반으로 학습 현황을 투명하게 관리하고자 했습니다.
 
-## 3. 🛠️ 기술 스택 (Tech Stack)
+## 3. 🛠️ 기술 스택
 
 ### 🔹 Workflow & Automation
-![n8n](https://img.shields.io/badge/n8n-FF6584?style=flat-square&logo=n8n&logoColor=white)
+![n8n](https://img.shields.io/badge/n8n-FF6584?style=flat-square&logo=n8n&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black)
+ ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+
 * **n8n (Self-Hosted):** Docker 컨테이너 기반으로 직접 구축하여 데이터 보안성과 커스터마이징 유연성 확보.
+* **Docker**: Docker Compose를 활용한 n8n 서비스 구성 및 재배포를 통해 안정적인 자동화 환경 구축.
+* **Linux**: Linux 서버 환경에서 컨테이너 운영, 로그 관리 및 기본적인 서버 설정·운영 수행.
 * **JavaScript (ES6):** Function Node 및 Expression을 활용한 복잡한 JSON 데이터 파싱 및 정규식 처리.
 
 
@@ -53,9 +58,9 @@
 
 ---
 
-## 4. 🏗️ 시스템 아키텍처 (System Architecture)
+## 4. 🏗️ 시스템 아키텍처
 
-전체 시스템은 **'문제 추천(Morning Routine)'**과 **'풀이 인증(Solving Routine)'**의 두 가지 주요 워크플로우로 구성되어 있습니다.
+전체 시스템은 <b>'문제 추천(Morning Routine)</b>과 <b>'풀이 인증(Solving Routine)'</b>의 두 가지 주요 워크플로우로 구성되어 있습니다.
 <br>
 ```mermaid
 sequenceDiagram
@@ -92,13 +97,24 @@ sequenceDiagram
     end
 ```
 
-<br><br><br>
+<br>
 
-## 5. ✨ 주요 기능 상세 (Key Features)
+## 5. 🔄 워크플로우
+
+### 1️⃣ 맞춤형 문제 추천 & 알림
+
+### 2️⃣ 문제 수락 & Notion 자동화
+
+### 3️⃣ 풀이 검증 및 동기화
+
+<br><br>
+
+## 6. ✨ 주요 기능 상세
 
 ### 1️⃣ 🎲 맞춤형 문제 추천 & 알림 (Daily Smart Recommendation)
 매일 아침, 사용자의 학습 단계에 맞는 문제를 자동으로 선별하여 제공합니다.
-* **API Integration:** `Solved.ac` API를 호출하여 `Tier: Silver 5 ~ Silver 3` 난이도의 문제를 무작위로 추출합니다.
+* **API Integration:** `Solved.ac` API를 호출하여 `Tier: ~ 
+Gold 1` 난이도의 문제를 무작위로 추출합니다.
 * **Scheduling:** n8n의 `Cron/Schedule` 노드를 통해 매일 09:00에 트리거됩니다.
 * **User Experience:** 단순 텍스트가 아닌 Slack Block Kit을 활용하여 문제 제목, 난이도, 링크를 시각적으로 구조화해 전송합니다.
 
@@ -106,18 +122,18 @@ sequenceDiagram
 Slack에서 노션으로 이어지는 Context Switching을 제거하기 위해, 메신저 내에서 데이터베이스 조작이 가능하도록 구현했습니다.
 * **Interactive Buttons:** 추천 메시지에 '✅ 수락', '❌ 거절' 버튼을 부착하여 사용자 행동을 유도합니다.
 * **Webhook Event Handling:** 버튼 클릭 시 발생하는 `POST` 요청을 n8n Webhook이 수신합니다.
-* **Data Routing:** `Switch` 노드를 통해 Action ID(`action_approve`)를 판별하고, 수락 시 Notion API를 호출하여 '할 일(To-Do)' 페이지를 자동 생성합니다.
+* **Data Routing:** `Switch` 노드를 통해 Action ID(`action_approve`)를 판별하고, 수락 시 Notion API를 호출하여 '진행할 알고리즘 문제' 페이지를 자동 생성합니다.
 
 ### 3️⃣ 🔄 풀이 검증 및 동기화 (Automated Verification & Sync)
 문제 풀이 후 별도의 기록 과정 없이, 코드 제출만으로 학습 상태를 동기화합니다.
 * **Pattern Matching:** GitHub Push 이벤트 중 커밋 메시지에 `BaekjoonHub` 키워드가 포함된 경우에만 워크플로우가 실행됩니다.
 * **Data Parsing:** 커밋 메시지 문자열을 분석(Split/Regex)하여 `문제 제목`, `난이도`, `풀이 자(Author)` 정보를 추출합니다.
-* **DB Update:** 추출된 제목을 기반으로 Notion 데이터베이스를 검색(Query)하고, 일치하는 페이지의 상태를 **'진행 중' → '완료'**로 변경하며 커밋 URL을 자동으로 기입합니다.
+* **DB Update:** 추출된 제목을 기반으로 Notion 데이터베이스를 검색(Query)하고, 일치하는 페이지의 상태를 <b>'진행 중' → '완료'</b>로 변경하며 커밋 URL을 자동으로 기입합니다.
 
-<br><br><br>
+<br><br>
 
 
-## 6. 🚀 트러블 슈팅 (Troubleshooting)
+## 7. 🚀 트러블 슈팅
 
 ### 🚨 이슈 1 : GitHub Webhook(Commit Push) 이벤트 수신 불가
 
@@ -131,7 +147,7 @@ Slack에서 노션으로 이어지는 Context Switching을 제거하기 위해, 
 * **네트워크 격리:** GitHub 서버는 공용 인터넷(Public Network)에 위치해 있지만, 내 n8n 서버는 내 컴퓨터의 사설망(Private Network, `localhost`) 내부에 갇혀 있습니다.
 * **접근 불가:** 외부 서비스인 GitHub 입장에서는 내 컴퓨터의 IP 주소를 알 수도 없고, 방화벽 등에 막혀 직접 접근(Inbound Request)할 수 없습니다. 즉, `localhost`라는 주소는 GitHub 서버 입장에서 유효하지 않은 주소입니다.
 
-#### 3. 해결 방법: ngrok을 이용한 터널링 (Solution)
+#### 3. 해결 방법: ngrok을 이용한 터널링
 로컬 포트를 외부 인터넷에 안전하게 노출시켜주는 터널링 도구 **ngrok**을 도입하여, GitHub가 내 로컬 서버로 데이터를 보낼 수 있는 공용 터널을 생성했습니다.
 
 - **1) ngrok 설치 및 실행**
