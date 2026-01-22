@@ -100,12 +100,16 @@ sequenceDiagram
 <br>
 
 ## 5. 🔄 워크플로우
+<img src="./asset/n8n_all.png" alt="n8n 워크플로우" width="600" />
 
 ### 1️⃣ 맞춤형 문제 추천 & 알림
+<img src="./asset/n8n_send.png" alt="n8n 워크플로우" width="600" />
 
 ### 2️⃣ 문제 수락 & Notion 자동화
+<img src="./asset/n8n_notion.png" alt="n8n 워크플로우" width="600" />
 
 ### 3️⃣ 풀이 검증 및 동기화
+<img src="./asset/n8n_solved.png" alt="n8n 워크플로우" width="600" />
 
 <br><br>
 
@@ -156,6 +160,7 @@ n8n이 실행 중인 로컬 포트(5678)를 외부와 연결합니다.
     ```bash
     ngrok http 5678
     ```
+    <img src="./asset/ngrok_start.png" alt="ngrok 실행" width="400" />
 
 - **2) 퍼블릭 URL 확보**
 ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
