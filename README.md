@@ -45,7 +45,7 @@
 2.  **관리의 번거로움 (Admin Overhead):** 문제를 풀 때마다 Notion에 접속해 제목, 링크, 난이도를 기록하고 체크박스를 갱신하는 과정이 번거로워 기록을 누락하게 됨.
 3.  **지속성 저하 (Consistency):** 강제성이 부족하고 피드백 루프가 느려 작심삼일로 끝나는 경우가 많음.
 
-이러한 문제를 해결하기 위해 <b>"홈 서버 Docker 환경에서 구동되는 n8n을 이용해, 이기종 애플리케이션(GitHub, Notion, Slack)이 유기적으로 데이터를 주고받는 자동화 파이프라인"</b>을 설계하게 되었습니다. 이를 통해 단순 반복 업무를 제거하고, 데이터 기반으로 학습 현황을 투명하게 관리하고자 했습니다.
+이러한 문제를 해결하기 위해 <b>"홈 서버 Docker 환경에서 구동되는 n8n을 이용해, 다양한 애플리케이션(GitHub, Notion, Slack)이 유기적으로 데이터를 주고받는 자동화 파이프라인"</b>을 설계하게 되었습니다. 이를 통해 단순 반복 업무를 제거하고, 데이터 기반으로 학습 현황을 투명하게 관리하고자 했습니다.
 
 ## 3. 🛠️ 기술 스택
 
@@ -220,7 +220,7 @@ n8n이 실행 중인 로컬 포트(5678)를 외부와 연결합니다.
     ```bash
     ngrok http 5678
     ```
-    <img src="./asset/ngrok_start.png" alt="ngrok 실행" width="400" />
+    <img src="./asset/ngrok_start_h.png" alt="ngrok 실행" width="400" />
 
 - **2) 퍼블릭 URL 확보**
 ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
@@ -228,7 +228,8 @@ ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
 - **3) GitHub Webhook 설정 업데이트**
     - Payload URL을 기존 localhost 주소에서 ngrok이 발급해 준 주소로 변경
 
-- **4) Slack API 설정 업데이트**
+- **4) 추가 - Slack API 설정 업데이트**  
+  Slack '수락' 버튼을 클릭했을 때, Webhook이 감지할 수 있도록 `Slack API` 설정도 업데이트 하였습니다.
     - Interactivity의 Request URL을 Webhook의 `Production URL` 주소로 변경
       
     <img src="./asset/slack_bot_url.png" alt="slack_bot_url" width="400" />
