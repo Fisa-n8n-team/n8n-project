@@ -226,13 +226,15 @@ n8n이 실행 중인 로컬 포트(5678)를 외부와 연결합니다.
 ngrok 실행 후 생성된 고유의 Forwarding URL을 확보했습니다.
 
 - **3) GitHub Webhook 설정 업데이트**
-    - Payload URL을 기존 localhost 주소에서 ngrok이 발급해 준 주소로 변경
+    - URL을 기존 localhost 주소에서 ngrok이 발급해 준 주소로 변경
+ 
+      <img src="./asset/n8n_webhook.png" alt="webhook_url" width="300" />
 
 - **4) 추가 - Slack API 설정 업데이트**  
   Slack '수락' 버튼을 클릭했을 때, Webhook이 감지할 수 있도록 `Slack API` 설정도 업데이트 하였습니다.
     - Interactivity의 Request URL을 Webhook의 `Production URL` 주소로 변경
       
-    <img src="./asset/slack_bot_url.png" alt="slack_bot_url" width="400" />
+      <img src="./asset/slack_bot_url.png" alt="slack_bot_url" width="400" />
 
 #### 4. 결과
 - git push 발생 시, GitHub가 ngrok 터널을 통해 로컬 n8n으로 Webhook 이벤트(JSON Payload)를 정상적으로 전송
